@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SybrantBot</title>
+    <style>
+      body { font-family: system-ui; margin: 0; background: #f5f5f5; color: #333; height: 100vh; }
+      .container { max-width: 800px; margin: 0 auto; height: 100vh; display: flex; flex-direction: column; background: white; }
+      header { padding: 12px 20px; background: #3a6df0; color: white; font-weight: 600; }
+      main { display: flex; flex-direction: column; flex: 1; }
+      .messages { flex: 1; overflow: auto; padding: 16px; background: white; }
+      .bubble { max-width: 70%; padding: 10px 14px; border-radius: 12px; margin: 6px 0; font-size: 14px; }
+      .user { background: #3a6df0; margin-left: auto; color: white; }
+      .bot { background: #f0f0f0; border: 1px solid #ddd; color: #333; }
+      .meta { color: #666; font-size: 11px; margin-top: 4px; }
+      form { display: flex; gap: 10px; padding: 16px; background: white; border-top: 1px solid #ddd; }
+      input[type="text"] { flex: 1; padding: 10px 14px; border-radius: 8px; border: 1px solid #ddd; background: white; color: #333; }
+      button { padding: 10px 16px; border-radius: 8px; border: none; background: #3a6df0; color: white; cursor: pointer; }
+      button:disabled { opacity: 0.6; }
+      .sources { font-size: 11px; color: #666; }
+      a { color: #3a6df0; }
+      @media (max-width: 768px) { .bubble { max-width: 85%; } }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>SybrantBot</header>
+      <main>
+        <div id="messages" class="messages"></div>
+        <form id="chat-form">
+          <input id="input" type="text" placeholder="Ask me anything..." autocomplete="off" />
+          <button id="send" type="submit">Send</button>
+        </form>
+      </main>
+    </div>
+    <script>
+      const elMessages = document.getElementById('messages');
+      const elForm = document.getElementById('chat-form');
+      const elInput = document.getElementById('input');
+      const elSend = document.getElementById('send');
+      const sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+
+      function addBubble(text, who, sources) {
+        const wrap = document.createElement('div');
+        wrap.className = `bubble ${who}`;
+        wrap.textContent = text;
+        elMessages.appendChild(wrap);
+        if (sources && sources.length) {
+          const meta = document.createElement('div');
+          meta.className = 'meta sources';
+          meta.innerHTML = sources.map(s => s?.url ? `<a href="${s.url}" target="_blank">${s.url}</a>` : '').filter(Boolean).join(' | ');
+          elMessages.appendChild(meta);
+        }
+        elMessages.scrollTop = elMessages.scrollHeight;
+      }
+
+      elForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const text = elInput.value.trim();
+        if (!text) return;
+        
+        addBubble(text, 'user');
+        elInput.value = '';
+        elSend.disabled = true;
+        
+        try {
+          const res = await fetch('/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: text, session_id: sessionId })
+          });
+          const data = await res.json();
+          if (data.error) throw new Error(data.error);
+          addBubble(data.answer || '(no answer)', 'bot', data.sources || []);
+        } catch (err) {
+          addBubble('Error: ' + err.message, 'bot');
+        } finally {
+          elSend.disabled = false;
+          elInput.focus();
+        }
+      });
+
+      elInput.focus();
+      elInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          elForm.dispatchEvent(new Event('submit'));
+        }
+      });
+    </script>
+  </body>
+  </html>
+
+
