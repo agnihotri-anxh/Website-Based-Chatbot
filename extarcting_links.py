@@ -27,12 +27,11 @@ def extract_urls(page_url):
 
 
 if __name__ == "__main__":
-    page = "https://sybrant.com/apis/"
+    page = "https://sybrant.com/services/data-solutions-analytics/"
     all_urls = extract_urls(page)
 
-    # Save to file
-    with open("extracted_links1.txt", "w", encoding="utf-8") as f:
-        for u in sorted(all_urls):   # sorted for consistency
+    with open("extracted_links.txt", "w", encoding="utf-8") as f:
+        for u in sorted(all_urls):   
             f.write(u + "\n")
 
     print(f"✅ {len(all_urls)} links saved to extracted_links.txt")
