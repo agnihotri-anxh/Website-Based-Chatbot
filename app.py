@@ -11,11 +11,13 @@ st.set_page_config(page_title="Humanli.ai Website Chatbot", page_icon="🤖")
 st.title("Website-Based Chatbot")
 st.markdown("Chat **only** with the content of a website.")
 
+groq_api_key = os.getenv("GROQ_API_KEY")
+if not groq_api_key:
+    st.error("❌ GROQ_API_KEY not found. Please add it to .env file")
+    st.stop()
+
 with st.sidebar:
     st.header("Configuration")
-    groq_api_key = os.getenv("GROQ_API_KEY") or st.text_input("Enter Groq API Key", type="password")
-    if not groq_api_key:
-        st.stop()
     url = st.text_input("Website URL", placeholder="https://example.com")
     process = st.button("Index Website")
 
