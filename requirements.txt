@@ -1,19 +1,10 @@
-# Flask and Web Server
-Flask==2.3.3
-Flask-Cors==4.0.0
-gunicorn==21.2.0
-python-dotenv
-
-# AI & LangChain
+streamlit
 langchain
-langchain-groq==0.1.3
-langchain-pinecone==0.1.0
+langchain-groq
+langchain-huggingface
 langchain-community
+chromadb
+beautifulsoup4
+python-dotenv
+tiktoken
 sentence-transformers
-pinecone-client==3.2.2
-
-# ML Framework (Crucial for sentence-transformers)
-torch==2.2.1
-
-# Database
-redis==5.0.1
