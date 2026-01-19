@@ -13,7 +13,7 @@ st.markdown("Chat **only** with the content of a website.")
 
 groq_api_key = os.getenv("GROQ_API_KEY")
 if not groq_api_key:
-    st.error("❌ GROQ_API_KEY not found. Please add it to .env file")
+    st.error(" GROQ_API_KEY not found. Please add it to .env file")
     st.stop()
 
 with st.sidebar:
