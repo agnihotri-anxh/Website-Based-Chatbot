@@ -13,7 +13,7 @@ st.markdown("Chat **only** with the content of a website.")
 
 groq_api_key = os.getenv("GROQ_API_KEY")
 if not groq_api_key:
-    st.error(" GROQ_API_KEY not found. Please add it to .env file")
+    st.error("GROQ_API_KEY not found. Please add it to .env file")
     st.stop()
 
 with st.sidebar:
@@ -23,6 +23,7 @@ with st.sidebar:
 
 if "qa_chain" not in st.session_state:
     st.session_state.qa_chain = None
+
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 
@@ -49,14 +50,20 @@ if st.session_state.qa_chain:
     for msg in st.session_state.chat_history:
         with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
+
     question = st.chat_input("Ask a question about the website")
+
     if question:
         st.session_state.chat_history.append({"role": "user", "content": question})
         with st.chat_message("user"):
             st.markdown(question)
-        with st.chat_message("user"):
-            st.markdown(question)
+
         with st.chat_message("assistant"):
             answer = ask_question(st.session_state.qa_chain, question)
             st.markdown(answer)
-            st.session_state.chat_history.append({"role": "assistant", "content": answer})
+
+        st.session_state.chat_history.append(
+            {"role": "assistant", "content": answer}
+        )
+else:
+    st.info("Please index a website to start chatting.")
