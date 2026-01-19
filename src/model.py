@@ -53,7 +53,7 @@ class SimpleRAGChain:
         return {"answer": answer, "source_documents": docs}
 
 def setup_qa_chain(vectorstore, groq_api_key):
-    llm = ChatGroq(model_name="openai/gpt-oss-20b", temperature=0, groq_api_key=groq_api_key)
+    llm = ChatGroq(model_name="llama3-70b-8192", temperature=0, groq_api_key=groq_api_key)
     retriever = vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": 4})
     return SimpleRAGChain(llm, retriever)
 

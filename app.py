@@ -52,6 +52,10 @@ if st.session_state.qa_chain:
     question = st.chat_input("Ask a question about the website")
     if question:
         st.session_state.chat_history.append({"role": "user", "content": question})
+        with st.chat_message("user"):
+            st.markdown(question)
+        with st.chat_message("user"):
+            st.markdown(question)
         with st.chat_message("assistant"):
             answer = ask_question(st.session_state.qa_chain, question)
             st.markdown(answer)
