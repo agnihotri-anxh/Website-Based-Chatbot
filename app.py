@@ -7,7 +7,7 @@ from src.model import setup_qa_chain, ask_question
 
 load_dotenv()
 
-st.set_page_config(page_title="Humanli.ai Website Chatbot", page_icon="🤖")
+st.set_page_config(page_title="Humanli.ai Website Chatbot")
 st.title("Website-Based Chatbot")
 st.markdown("Chat **only** with the content of a website.")
 
