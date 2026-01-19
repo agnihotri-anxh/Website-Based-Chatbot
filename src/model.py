@@ -2,14 +2,11 @@ from langchain_groq import ChatGroq
 
 PROMPT_TEMPLATE = """You are a helpful AI assistant.
 Answer ONLY using the context below.
-If the answer is not present, reply exactly:
+If the answer is not present in the context, reply exactly:
 "The answer is not available on the provided website."
 
 Context:
 {context}
-
-Conversation History:
-{history}
 
 Question:
 {question}
@@ -37,24 +34,45 @@ class SimpleRAGChain:
     def invoke(self, inputs: dict) -> dict:
         question = inputs["question"]
         docs = self.retriever.invoke(question)
-        
+
         if not docs:
-            return {"answer": "The answer is not available on the provided website.", "source_documents": []}
-        
+            return {
+                "answer": "The answer is not available on the provided website.",
+                "source_documents": []
+            }
+
         context = "\n\n".join(d.page_content for d in docs)
+
         prompt = PROMPT_TEMPLATE.format(
             context=context,
-            history=self.memory.load(),
             question=question
         )
-        answer = self.llm.invoke(prompt).content
-        self.memory.save_context({"question": question}, {"answer": answer})
-        
-        return {"answer": answer, "source_documents": docs}
+
+        answer = self.llm.invoke(prompt).content.strip()
+
+        if "answer is not available on the provided website" in answer.lower():
+            answer = "The answer is not available on the provided website."
+
+        self.memory.save_context(
+            {"question": question},
+            {"answer": answer}
+        )
+
+        return {
+            "answer": answer,
+            "source_documents": docs
+        }
 
 def setup_qa_chain(vectorstore, groq_api_key):
-    llm = ChatGroq(model_name="llama-3.3-70b-versatile", temperature=0, groq_api_key=groq_api_key)
-    retriever = vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": 4})
+    llm = ChatGroq(
+        model_name="openai/gpt-oss-20b",
+        temperature=0,
+        groq_api_key=groq_api_key
+    )
+    retriever = vectorstore.as_retriever(
+        search_type="similarity",
+        search_kwargs={"k": 4}
+    )
     return SimpleRAGChain(llm, retriever)
 
 def ask_question(chain, question: str) -> str:
